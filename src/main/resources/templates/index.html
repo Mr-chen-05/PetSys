@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+  <title>宠物信息</title>
+  <script src="/js/jquery-3.7.1.min.js"></script>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  #mainBox {
+    width: 100%;
+    text-align: center;
+  }
+
+  /*#petTable {*/
+  /*    border-collapse: collapse;*/
+  /*}*/
+
+  #petBox2 {
+    display: grid;
+    justify-items: center;
+  }
+</style>
+<body>
+<div id="mainBox">
+  <div id="petBox1">
+    <label>品种</label>
+    <select id="petType">
+      <option value="">--请选择--</option>
+      <option th:each="petType : ${session.petBreedInfoList}" th:value="${petType.value}"
+              th:text="${petType.name}"></option>
+    </select>
+    <button id="query">查询</button>
+    <a th:href="@{/BreedAndSexInfo}">新增宠物</a>
+  </div>
+  <div id="petBox2">
+    <table id="petTable" border="1" width="50%">
+      <thead>
+      <tr id="firstTr">
+        <th>宠物昵称</th>
+        <th>出生日期</th>
+        <th>品种</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+<script>
+  $(function () {
+    $('#firstTr th').css('background-color', 'green')
+
+    //查询所有宠物信息
+    findAllAndByBreed();
+    document.querySelector('#query').addEventListener('click', function () {
+      let petbreed = document.querySelector('#petType').value;
+      findAllAndByBreed(petbreed);
+    })
+  })
+  // function findByBreed() {
+  //
+  //     $.ajax({
+  //         url: "/pet/petbreed/"+petBreed,
+  //         type: "get",
+  //         success: function (result) {
+  //           flushTable(result.data)
+  //         },
+  //         error: function () {
+  //             alert("请求失败")
+  //         }
+  //     })
+  // }
+
+  function findAllAndByBreed(petbreed) {
+
+    $.ajax({
+      url: "/pet/findAllAndByBreed",
+      type: "get",
+      dataType: "json",
+      data: {
+        petbreed: petbreed
+      },
+      success: function (result) {
+        console.log("接收到的响应数据:", result); // 添加调试日志
+        if (result.code == 200) {
+          flushTable(result.data);
+        } else {
+          alert(result.message);
+        }
+      },
+      error: function () {
+        alert("请求失败");
+      }
+    })
+  }
+
+  function flushTable(pets) {
+    console.log("接收到的宠物数据:", pets); // 添加调试日志
+    // 清空表格
+    $("#petTable tbody").empty();
+
+    $.each(pets, function (index, pet) {
+
+      $("tbody").append(
+          `
+            <tr>
+              <td>${pet.petname}</td>
+              <td>${pet.birthday}</td>
+              <td>${pet.petSexName}</td>
+              <td><a href="#" onclick="deletePet(${pet.petid})">删除</a></td>
+            </tr>
+          `
+          // " <tr>" +
+          // "<td>" + pet.petname + "</td>" +
+          // "<td>" + pet.birthday + "</td>" +
+          // "<td>" + pet.petSexName + "</td>" +
+          // " </tr>"
+      )
+    })
+    $('tbody tr:odd').css("background-color", "gray")
+  }
+
+  function deletePet(petid) {
+    if (!confirm("确定要删除吗？")) {
+      return;
+    }
+    $.ajax({
+      url: "/pet/" + petid,
+      type: "delete",
+      dataType: "json",
+      success: function (result) {
+        if (result.code == 200) {
+          alert(result.message);
+          // 删除成功后，重新加载宠物列表
+          location.reload();
+        } else {
+          alert(result.message);
+        }
+      },
+      error:  function (xhr, status, error) {
+        alert("请求失败: " + error);
+        console.error("Delete error:", xhr.responseText);
+      }
+    })
+  }
+</script>
+</html>

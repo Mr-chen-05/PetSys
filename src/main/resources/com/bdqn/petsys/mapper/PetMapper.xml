@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdqn.petsys.mapper.PetMapper">
+
+    <resultMap id="BaseResultMap" type="com.bdqn.petsys.entity.Pet">
+            <id property="petid" column="petId" />
+            <result property="petname" column="petName" />
+            <result property="petbreed" column="petBreed" />
+            <result property="petsex" column="petSex" />
+            <result property="birthday" column="birthday" />
+            <result property="description" column="description" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        petId,petName,petBreed,petSex,birthday,description
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from pet
+        where  petId = #{petid} 
+    </select>
+    <select id="selectByBreedAndAll" resultType="com.bdqn.petsys.entity.Pet">
+        select *
+        from pet
+        <where>
+            <if test="petbreed != null and petbreed != ''">
+                 and petBreed = #{petbreed}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from pet
+        where  petId = #{petid} 
+    </delete>
+
+    <insert id="insertSelective" keyColumn="petId" keyProperty="petid" parameterType="com.bdqn.petsys.entity.Pet" useGeneratedKeys="true">
+        insert into pet
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="petid != null">petId,</if>
+                <if test="petname != null">petName,</if>
+                <if test="petbreed != null">petBreed,</if>
+                <if test="petsex != null">petSex,</if>
+                <if test="birthday != null">birthday,</if>
+                <if test="description != null">description,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="petid != null">#{petid},</if>
+                <if test="petname != null">#{petname},</if>
+                <if test="petbreed != null">#{petbreed},</if>
+                <if test="petsex != null">#{petsex},</if>
+                <if test="birthday != null">#{birthday},</if>
+                <if test="description != null">#{description},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bdqn.petsys.entity.Pet">
+        update pet
+        <set>
+                <if test="petname != null">
+                    petName = #{petname},
+                </if>
+                <if test="petbreed != null">
+                    petBreed = #{petbreed},
+                </if>
+                <if test="petsex != null">
+                    petSex = #{petsex},
+                </if>
+                <if test="birthday != null">
+                    birthday = #{birthday},
+                </if>
+                <if test="description != null">
+                    description = #{description},
+                </if>
+        </set>
+        where   petId = #{petid} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bdqn.petsys.entity.Pet">
+        update pet
+        set 
+            petName =  #{petname},
+            petBreed =  #{petbreed},
+            petSex =  #{petsex},
+            birthday =  #{birthday},
+            description =  #{description}
+        where   petId = #{petid} 
+    </update>
+</mapper>

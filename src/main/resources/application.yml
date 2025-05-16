@@ -1,0 +1,43 @@
+# 配置数据源
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/pet
+    username: root
+    password: chenzhuo2005.
+    type: com.alibaba.druid.pool.DruidDataSource
+# thymeleaf配置
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    cache: false
+# 配置 MyBatis-Plus 的相关属性
+mybatis-plus:
+  # 配置 MyBatis 的内置配置
+  configuration:
+    # 指定 MyBatis 的日志实现类为 StdOutImpl，即将 SQL 日志输出到控制台
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 开启自动映射数据库下划线字段到 Java 对象的驼峰命名属性
+    map-underscore-to-camel-case: true
+    # 启用 MyBatis-Plus 二级缓存
+    cache-enabled: true
+  global-config:
+    db-config:
+      # 设置主键自增
+      id-type: AUTO
+      # 设置表名前缀
+      table-prefix: tb_
+      # 是否使用驼峰转下划线命名，默认开启
+      column-underline: true
+
+# 日志配置
+logging:
+  pattern:
+    console: '%d{HH:mm:ss.SSS} %clr(%-5level) ---  [%-15thread] %cyan(%-50logger{50}):%msg%n'
+#  level:
+#    # 设置 MyBatis Mapper 接口的日志级别为 DEBUG
+#    com.bdqn.petsys.mapper: DEBUG
+

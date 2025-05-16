@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
+  <title>新增宠物</title>
+  <script src="/js/jquery-3.7.1.min.js"></script>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  #Box {
+    width: 100%;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  #mainBox {
+    display: grid;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  #description {
+    margin-top: 5px;
+  }
+
+  input, #petbreed, textarea {
+    margin-left: 5px;
+  }
+
+  /*    获取最后一个div*/
+  #mainBox div:last-child {
+    padding-left: 205px;
+  }
+
+  #mainBox div:nth-child(5) {
+    position: relative;
+  }
+
+  label {
+    display: inline-block;
+    width: 80px;
+    text-align: right;
+  }
+
+  #petDescription {
+    position: relative;
+    top: -25px;
+  }
+</style>
+<body>
+<div id="Box">
+  <h2>宠物的基本信息</h2>
+  <div id="mainBox">
+    <form id="myForm">
+      <div>
+        <label>昵称：</label>
+        <input type="text" name="petname" id="petname">
+      </div>
+      <div>
+        <label>品种：</label>
+        <select name="petbreed" id="petbreed">
+          <option value="0">--请选择--</option>
+          <option th:each="petBreed : ${session.petBreedInfoList}" th:value="${petBreed.value}"
+                  th:text="${petBreed.name}"></option>
+        </select>
+      </div>
+      <div>
+        <label>性别：</label>
+        <span th:each="petSex : ${session.petSexInfoList}">
+                 <input type="radio" name="petsex" id="petsex" th:value="${petSex.value}" th:text="${petSex.name}"
+                        th:checked="${petSex.value == 1}">
+            </span>
+      </div>
+      <div>
+        <label>出生日期：</label>
+        <input type="text" name="birthday" id="birthday">
+        <span>yyyy-MM-dd</span>
+      </div>
+      <div>
+        <label id="petDescription">宠物描述：</label>
+        <textarea name="description" rows="4" cols="50" id="description"></textarea>
+      </div>
+      <div>
+        <input type="button" value="提交" id="submit">
+        <input type="reset" value="重置">
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  $(function () {
+    // 当昵称输入框失去焦点时候、对昵称进行校验(查重)
+    document.querySelector('#petname').addEventListener('blur', function () {
+      findPetName()
+    })
+    document.querySelector('input[type=button]').addEventListener('click', function () {
+      addPet()
+    })
+  })
+
+  function findPetName() {
+    let petname = document.querySelector('#petname').value;
+    $.ajax({
+      url: "/pet/" + petname,
+      type: "get",
+      success: function (result) {
+        if (result.code == 200) {
+          alert(result.message)
+        } else {
+          alert(result.message)
+        }
+      },
+      error: function () {
+        alert("请求失败")
+      }
+    })
+  }
+
+  function addPet() {
+    let petname = document.querySelector('#petname').value;
+    let birthday = document.querySelector('#birthday').value;
+    let petbreed = document.querySelector('#petbreed').value;
+    let petsex = document.querySelector('#petsex').value;
+    let description = document.querySelector('#description').value;
+
+    if (petname == '') {
+      alert('昵称不能为空！')
+      return false
+    }
+    if (petbreed == '0') {
+      alert('请选择品种！')
+      return false
+    }
+    if (birthday == '') {
+      alert('出生日期不能为空！')
+      return false
+    } else {
+      /**
+       * isNaN(date.getTime())
+       *
+       * 如果日期无效，date.getTime() 是 NaN，isNaN 返回 true。
+       *
+       * 如果日期有效，date.getTime() 是数字，isNaN 返回 false。
+       *
+       * !isNaN(date.getTime())
+       *
+       * 对结果取反：
+       *
+       * 无效日期 → isNaN 返回 true → 最终返回 false。
+       *
+       * 有效日期 → isNaN 返回 false → 最终返回 true。
+       * @type {RegExp}
+       */
+      let reg = /^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/
+      if (!reg.test(birthday)) {
+        alert('出生日期格式不正确！')
+        return false
+      } else {
+        let date = new Date(birthday);
+        if (isNaN(date.getTime())) {
+          alert('出生日期格式不正确！')
+          return false;
+        }
+      }
+    }
+
+    $.ajax({
+      url: "/pet/addPet",
+      type: "post",
+      data: $('#myForm').serialize(),
+      // data: {
+      //     petname: petname,
+      //     birthday: birthday,
+      //     petbreed: petbreed,
+      //     petsex: petsex,
+      //     description:description
+      // },
+      // contentType: "application/json",
+      dataType: "json",
+      success: function (result) {
+        if (result.code == 200) {
+          alert(result.message);
+        } else {
+          alert(result.message);
+        }
+        window.location.href = "/BreedInfo";
+      }
+    })
+  }
+</script>
+</body>
+</html>
